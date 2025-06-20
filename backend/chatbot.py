@@ -16,26 +16,50 @@ logger = logging.getLogger(__name__)
 class ExpenseChatbot:
     def __init__(self):
         try:
-            logger.info("Initializing DeepSeek transformer model...")
-            # Try to initialize the Hugging Face pipeline with DeepSeek model
+            logger.info("Initializing AI transformer model...")
+            # Try to initialize the Hugging Face pipeline with Llama model
             try:
+                logger.info("Attempting to load Llama-3.1-8B-Instruct model...")
+                from transformers import AutoTokenizer, AutoModelForCausalLM
+                
+                # Load Llama model and tokenizer
+                self.tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.1-8B-Instruct")
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    "meta-llama/Llama-3.1-8B-Instruct",
+                    device_map="auto" if os.getenv("CUDA_AVAILABLE") else "cpu",
+                    torch_dtype="auto"
+                )
+                
+                # Create pipeline
                 self.pipe = pipeline(
                     "text-generation", 
-                    model="deepseek-ai/DeepSeek-R1-0528", 
-                    trust_remote_code=True,
+                    model=self.model,
+                    tokenizer=self.tokenizer,
                     device_map="auto" if os.getenv("CUDA_AVAILABLE") else "cpu"
                 )
-                logger.info("DeepSeek model loaded successfully!")
+                logger.info("Llama-3.1-8B-Instruct model loaded successfully!")
+                
             except Exception as model_error:
-                logger.warning(f"DeepSeek model failed to load: {model_error}")
-                logger.info("Trying alternative model: microsoft/DialoGPT-medium")
-                # Fallback to a simpler model that doesn't require flash_attn
-                self.pipe = pipeline(
-                    "text-generation", 
-                    model="microsoft/DialoGPT-medium", 
-                    trust_remote_code=False
-                )
-                logger.info("Alternative model loaded successfully!")
+                logger.warning(f"Llama model failed to load: {model_error}")
+                logger.info("Trying DeepSeek model as fallback...")
+                try:
+                    self.pipe = pipeline(
+                        "text-generation", 
+                        model="deepseek-ai/DeepSeek-R1-0528", 
+                        trust_remote_code=True,
+                        device_map="auto" if os.getenv("CUDA_AVAILABLE") else "cpu"
+                    )
+                    logger.info("DeepSeek model loaded successfully!")
+                except Exception as deepseek_error:
+                    logger.warning(f"DeepSeek model failed to load: {deepseek_error}")
+                    logger.info("Trying DialoGPT as final fallback...")
+                    # Fallback to a simpler model that doesn't require special dependencies
+                    self.pipe = pipeline(
+                        "text-generation", 
+                        model="microsoft/DialoGPT-medium", 
+                        trust_remote_code=False
+                    )
+                    logger.info("DialoGPT model loaded successfully!")
             
             self.model_available = True
         except Exception as e:

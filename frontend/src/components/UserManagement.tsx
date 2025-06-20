@@ -136,9 +136,10 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, onUserCreated })
               </button>
             </div>
           </form>
-        </div>
-      )}      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-        <div className="px-8 py-6 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+        </div>      )}
+
+      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+        <div className="px-8 py-6 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
               <span className="text-white text-sm">👥</span>
@@ -146,47 +147,97 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, onUserCreated })
             <h3 className="text-xl font-bold text-gray-900">All Users ({users.length})</h3>
           </div>
         </div>
-        <div className="divide-y divide-gray-100">
-          {users.length === 0 ? (
-            <div className="px-8 py-12 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">👥</span>
-              </div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">No users found</h4>
-              <p className="text-gray-500">Create your first user to get started.</p>
-            </div>          ) : (
-            users.map((user) => (
-              <div key={user.id} className="px-8 py-6 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-lg">{user.name.charAt(0).toUpperCase()}</span>
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-bold text-gray-900">{user.name}</h4>
-                      <p className="text-sm text-gray-500 flex items-center space-x-1">
-                        <span>✉️</span>
-                        <span>{user.email}</span>
-                      </p>
-                      <p className="text-xs text-gray-400">ID: {user.id}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
-                      Active
-                    </div>
-                    <button
-                      onClick={() => handleDeleteUser(user.id, user.name)}
-                      className="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 transform hover:scale-105 font-semibold"
-                    >
-                      🗑️ Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+        
+        {users.length === 0 ? (
+          <div className="px-8 py-16 text-center">
+            <div className="w-20 h-20 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <span className="text-3xl">👥</span>
+            </div>
+            <h4 className="text-xl font-semibold text-gray-900 mb-2">No users found</h4>
+            <p className="text-gray-500 text-lg">Create your first user to get started with expense tracking.</p>
+            <button
+              onClick={() => setShowForm(true)}
+              className="mt-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg"
+            >
+              ✨ Add First User
+            </button>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                  <th className="px-8 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">
+                    User
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">
+                    Contact
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {users.map((user, index) => (
+                  <tr 
+                    key={user.id} 
+                    className={`hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 ${
+                      index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
+                    }`}
+                  >
+                    <td className="px-8 py-6 whitespace-nowrap">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
+                          <span className="text-white font-bold text-lg">
+                            {user.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div>
+                          <div className="text-lg font-bold text-gray-900">{user.name}</div>
+                          <div className="text-sm text-gray-500">ID: #{user.id}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-6 whitespace-nowrap">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-blue-500">✉️</span>
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{user.email}</div>
+                          <div className="text-xs text-gray-500">Email Address</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-6 whitespace-nowrap">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800 shadow-sm">
+                        <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                        Active
+                      </span>
+                    </td>
+                    <td className="px-6 py-6 whitespace-nowrap text-center">
+                      <div className="flex items-center justify-center space-x-3">
+                        <button className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 text-sm font-semibold rounded-lg hover:bg-blue-200 transition-all duration-200 border border-blue-200">
+                          <span className="mr-1">👁️</span>
+                          View
+                        </button>
+                        <button
+                          onClick={() => handleDeleteUser(user.id, user.name)}
+                          className="inline-flex items-center px-4 py-2 bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md text-white"
+                        >
+                          <span className="mr-1">🗑️</span>
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

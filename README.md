@@ -66,8 +66,8 @@ The application includes an intelligent chatbot powered by Hugging Face transfor
 3. Get instant answers about your expenses and balances
 
 ### AI Model Details
-- **Primary Model**: DeepSeek-R1-0528 (Hugging Face transformers)
-- **Fallback Model**: Microsoft DialoGPT-medium (for compatibility)
+- **Primary Model**: Llama-3.1-8B-Instruct (Meta's latest instruction-tuned model)
+- **Fallback Models**: DeepSeek-R1-0528, Microsoft DialoGPT-medium (for compatibility)
 - **Processing**: Async processing for non-blocking responses
 - **Context-Aware**: Uses your actual expense data for accurate answers
 
