@@ -30,7 +30,7 @@ A simplified expense splitting application built with FastAPI, React, and Postgr
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Pavankishore9304/splitwise-clone.git
    cd splitwise-clone
    ```
 
