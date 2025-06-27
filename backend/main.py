@@ -6,8 +6,6 @@ from database import get_db, create_tables
 import models
 import schemas
 from collections import defaultdict
-from chatbot import chatbot
-from pydantic import BaseModel
 
 app = FastAPI(title="Splitwise Clone API", version="1.0.0")
 
@@ -552,28 +550,28 @@ def delete_settlement(settlement_id: int, db: Session = Depends(get_db)):
     return {"message": "Settlement deleted successfully"}
 
 # Chatbot schemas
-class ChatQuery(BaseModel):
-    query: str
+# class ChatQuery(BaseModel):
+#     query: str
 
-class ChatResponse(BaseModel):
-    response: str
-    query: str
+# class ChatResponse(BaseModel):
+#     response: str
+#     query: str
 
 # Chatbot endpoint
-@app.post("/chat/query", response_model=ChatResponse)
-async def chat_query(chat_query: ChatQuery, db: Session = Depends(get_db)):
-    """
-    Process natural language queries about expenses, balances, and groups
-    Example queries:
-    - "How much does Alice owe in group Goa Trip?"
-    - "Show me my latest 3 expenses"
-    - "Who paid the most in Weekend Trip?"
-    """
-    try:
-        response = await chatbot.process_query(chat_query.query, db)
-        return ChatResponse(response=response, query=chat_query.query)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing query: {str(e)}")
+# @app.post("/chat/query", response_model=ChatResponse)
+# async def chat_query(chat_query: ChatQuery, db: Session = Depends(get_db)):
+#     """
+#     Process natural language queries about expenses, balances, and groups
+#     Example queries:
+#     - "How much does Alice owe in group Goa Trip?"
+#     - "Show me my latest 3 expenses"
+#     - "Who paid the most in Weekend Trip?"
+#     """
+#     try:
+#         response = await chatbot.process_query(chat_query.query, db)
+#         return ChatResponse(response=response, query=chat_query.query)
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Error processing query: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

@@ -35,6 +35,7 @@ class Group(Base):
     # Relationships
     members = relationship("GroupMember", back_populates="group")
     expenses = relationship("Expense", back_populates="group")
+    settlements = relationship("Settlement", back_populates="group")
 
 class GroupMember(Base):
     __tablename__ = "group_members"

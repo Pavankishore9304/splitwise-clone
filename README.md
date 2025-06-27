@@ -9,7 +9,6 @@ A simplified expense splitting application built with FastAPI, React, and Postgr
 - **Group Management**: Create groups with multiple users
 - **Expense Management**: Add expenses with equal or percentage-based splitting
 - **Balance Tracking**: View balances for groups and individual users
-- **AI Chatbot**: Natural language query interface powered by Hugging Face transformers
 - **RESTful API**: Well-documented API endpoints
 
 ### Frontend (React + TailwindCSS)
@@ -17,7 +16,6 @@ A simplified expense splitting application built with FastAPI, React, and Postgr
 - **Group Creation**: Create groups and add members
 - **Expense Addition**: Add expenses with different split types
 - **Balance Visualization**: View balances and who owes whom
-- **AI Assistant**: Interactive chatbot for natural language queries about expenses
 - **Responsive Design**: Works on desktop and mobile devices
 
 ## Quick Start
@@ -30,7 +28,7 @@ A simplified expense splitting application built with FastAPI, React, and Postgr
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Pavankishore9304/splitwise-clone.git
+   git clone <repository-url>
    cd splitwise-clone
    ```
 
@@ -47,288 +45,282 @@ A simplified expense splitting application built with FastAPI, React, and Postgr
 That's it! The application will automatically:
 - Start PostgreSQL database
 - Run database migrations
-- Build and start the FastAPI backend
-- Build and start the React frontend
+- Start the FastAPI backend
+- Start the React frontend
 
-## AI Chatbot Features
+### Manual Setup (Development)
 
-The application includes an intelligent chatbot powered by Hugging Face transformers that can answer natural language questions about your expenses:
+#### Backend Setup
+1. **Navigate to backend directory**
+   ```bash
+   cd backend
+   ```
 
-### Supported Queries
-- **Balance Questions**: "How much does Alice owe?", "Who owes money?"
-- **Expense Queries**: "Show me the latest 3 expenses", "What did we spend on groceries?"
-- **Group Analysis**: "Who paid the most in Weekend Trip?", "What's the total spent?"
-- **General Stats**: "What's our biggest expense?", "How many groups do we have?"
+2. **Install Python dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-### How to Use
-1. Click the floating chat button (💬 Ask AI) in the bottom-right corner
-2. Type your question in natural language
-3. Get instant answers about your expenses and balances
+3. **Set up PostgreSQL**
+   - Install PostgreSQL
+   - Create database: `splitwise_db`
+   - Create user: `splitwise_user` with password: `password`
 
-### AI Model Details
-- **Primary Model**: Llama-3.1-8B-Instruct (Meta's latest instruction-tuned model)
-- **Fallback Models**: DeepSeek-R1-0528, Microsoft DialoGPT-medium (for compatibility)
-- **Processing**: Async processing for non-blocking responses
-- **Context-Aware**: Uses your actual expense data for accurate answers
+4. **Update environment variables**
+   ```bash
+   # Create .env file
+   DATABASE_URL=postgresql://splitwise_user:password@localhost:5432/splitwise_db
+   ```
 
-## Manual Setup (Development)
+5. **Run the backend**
+   ```bash
+   uvicorn main:app --reload
+   ```
 
-If you prefer to run components separately:
+#### Frontend Setup
+1. **Navigate to frontend directory**
+   ```bash
+   cd frontend
+   ```
 
-### 1. Database Setup
-```bash
-# Start PostgreSQL
-docker run --name postgres-db -e POSTGRES_DB=splitwise -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres:13
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-# Or use your local PostgreSQL instance
-```
+3. **Install TailwindCSS**
+   ```bash
+   npm install -D tailwindcss postcss autoprefixer
+   ```
 
-### 2. Backend Setup
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-### 3. Frontend Setup
-```bash
-cd frontend
-npm install
-npm start
-```
+4. **Start the frontend**
+   ```bash
+   npm start
+   ```
 
 ## API Documentation
 
-### Core Endpoints
-
-#### Users
+### Users
 - `POST /users/` - Create a new user
-- `GET /users/` - List all users
-- `GET /users/{user_id}` - Get user details
+- `GET /users/` - Get all users
+- `GET /users/{user_id}` - Get user by ID
+- `GET /users/{user_id}/balances` - Get user's balances across all groups
 
-#### Groups
+### Groups
 - `POST /groups/` - Create a new group
-- `GET /groups/` - List all groups
-- `POST /groups/{group_id}/members` - Add member to group
+- `GET /groups/` - Get all groups
+- `GET /groups/{group_id}` - Get group details
 - `GET /groups/{group_id}/balances` - Get group balances
-
-#### Expenses
-- `POST /expenses/` - Create a new expense
-- `GET /expenses/` - List all expenses
-- `GET /expenses/{expense_id}` - Get expense details
-
-#### AI Chatbot
-- `POST /chat/query` - Send a natural language query to the AI chatbot
+- `GET /groups/{group_id}/expenses/` - Get group expenses
+- `POST /groups/{group_id}/expenses/` - Add expense to group
 
 ### Request/Response Examples
 
 #### Create User
-```bash
-curl -X POST "http://localhost:8000/users/" \
-  -H "Content-Type: application/json" \
-  -d '{"name": "John Doe", "email": "john@example.com"}'
+```json
+POST /users/
+{
+  "name": "John Doe",
+  "email": "john@example.com"
+}
 ```
 
 #### Create Group
-```bash
-curl -X POST "http://localhost:8000/groups/" \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Weekend Trip", "description": "Trip to mountains"}'
+```json
+POST /groups/
+{
+  "name": "Weekend Trip",
+  "description": "Our weekend getaway",
+  "user_ids": [1, 2, 3]
+}
 ```
 
-#### Add Expense
-```bash
-curl -X POST "http://localhost:8000/expenses/" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "description": "Dinner at restaurant",
-    "amount": 120.00,
-    "paid_by": 1,
-    "group_id": 1,
-    "split_type": "equal",
-    "splits": [
-      {"user_id": 1, "amount": 40.00},
-      {"user_id": 2, "amount": 40.00},
-      {"user_id": 3, "amount": 40.00}
-    ]
-  }'
+#### Add Expense (Equal Split)
+```json
+POST /groups/1/expenses/
+{
+  "description": "Dinner at restaurant",
+  "amount": 120.00,
+  "paid_by": 1,
+  "split_type": "equal"
+}
 ```
 
-#### AI Chatbot Query
-```bash
-curl -X POST "http://localhost:8000/chat/query" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "How much does Alice owe?"}'
+#### Add Expense (Percentage Split)
+```json
+POST /groups/1/expenses/
+{
+  "description": "Hotel booking",
+  "amount": 300.00,
+  "paid_by": 2,
+  "split_type": "percentage",
+  "splits": [
+    {"user_id": 1, "percentage": 40.0},
+    {"user_id": 2, "percentage": 30.0},
+    {"user_id": 3, "percentage": 30.0}
+  ]
+}
 ```
 
-For complete API documentation, visit: http://localhost:8000/docs
+## How to Use
 
-## Technology Stack
+### 1. Create Users
+- Go to the "Users" tab
+- Click "Add User"
+- Enter name and email
+- Create all users who will participate in expense splitting
 
-### Backend
-- **FastAPI**: Modern Python web framework
-- **SQLAlchemy**: SQL toolkit and ORM
-- **PostgreSQL**: Reliable relational database
-- **Alembic**: Database migration tool
-- **Pydantic**: Data validation using Python type hints
-- **Transformers**: Hugging Face transformers for AI chatbot
-- **PyTorch**: Deep learning framework for model inference
+### 2. Create Groups
+- Go to the "Groups" tab
+- Click "Create Group"
+- Enter group name and description
+- Select members from the user list
+- Click "Create Group"
 
-### Frontend
-- **React 18**: Modern JavaScript library
-- **TypeScript**: Type-safe JavaScript
-- **TailwindCSS**: Utility-first CSS framework
-- **Axios**: HTTP client for API calls
+### 3. Add Expenses
+- Go to the "Expenses" tab
+- Select a group
+- Click "Add Expense"
+- Enter expense details:
+  - Description (e.g., "Dinner", "Hotel")
+  - Amount
+  - Who paid
+  - Split type (Equal or Percentage)
+  - For percentage splits, specify each person's percentage
 
-### Infrastructure
-- **Docker**: Containerization
-- **Docker Compose**: Multi-container orchestration
-- **Nginx**: Web server (for production)
+### 4. View Balances
+- Go to the "Balances" tab
+- Choose between Group View or User View
+- **Group View**: See who owes whom within a specific group
+- **User View**: See a user's overall balance across all groups
+
+## Testing & Debugging
+
+### Test the Application
+
+1. **Create Test Data**
+   ```bash
+   # Create users
+   curl -X POST "http://localhost:8000/users/" \
+        -H "Content-Type: application/json" \
+        -d '{"name": "Alice", "email": "alice@example.com"}'
+   
+   curl -X POST "http://localhost:8000/users/" \
+        -H "Content-Type: application/json" \
+        -d '{"name": "Bob", "email": "bob@example.com"}'
+   ```
+
+2. **Create a Group**
+   ```bash
+   curl -X POST "http://localhost:8000/groups/" \
+        -H "Content-Type: application/json" \
+        -d '{"name": "Test Group", "user_ids": [1, 2]}'
+   ```
+
+3. **Add an Expense**
+   ```bash
+   curl -X POST "http://localhost:8000/groups/1/expenses/" \
+        -H "Content-Type: application/json" \
+        -d '{"description": "Test Expense", "amount": 50.0, "paid_by": 1, "split_type": "equal"}'
+   ```
+
+4. **Check Balances**
+   ```bash
+   curl "http://localhost:8000/groups/1/balances"
+   ```
+
+### Debug Common Issues
+
+1. **Database Connection Issues**
+   - Check if PostgreSQL is running
+   - Verify connection string in `.env` file
+   - Ensure database and user exist
+
+2. **CORS Issues**
+   - Backend includes CORS middleware for `http://localhost:3000`
+   - Check if frontend is running on port 3000
+
+3. **API Errors**
+   - Check backend logs: `docker-compose logs backend`
+   - Visit API docs: http://localhost:8000/docs
+   - Verify request format matches schema
+
+4. **Frontend Issues**
+   - Check frontend logs: `docker-compose logs frontend`
+   - Verify backend is running on port 8000
+   - Check browser console for errors
+
+### Development Workflow
+
+1. **Make Changes**
+   - Backend: Edit files in `./backend/` - auto-reloads
+   - Frontend: Edit files in `./frontend/src/` - auto-reloads
+
+2. **View Logs**
+   ```bash
+   docker-compose logs -f backend
+   docker-compose logs -f frontend
+   docker-compose logs -f postgres
+   ```
+
+3. **Restart Services**
+   ```bash
+   docker-compose restart backend
+   docker-compose restart frontend
+   ```
+
+4. **Reset Database**
+   ```bash
+   docker-compose down -v
+   docker-compose up --build
+   ```
 
 ## Project Structure
 
 ```
 splitwise-clone/
 ├── backend/
-│   ├── main.py              # FastAPI application entry point
-│   ├── models.py            # SQLAlchemy database models
-│   ├── schemas.py           # Pydantic models for validation
-│   ├── database.py          # Database configuration
-│   ├── chatbot.py           # AI chatbot implementation
-│   ├── requirements.txt     # Python dependencies
-│   └── Dockerfile           # Backend container configuration
+│   ├── main.py           # FastAPI application
+│   ├── models.py         # SQLAlchemy models
+│   ├── schemas.py        # Pydantic schemas
+│   ├── database.py       # Database configuration
+│   ├── requirements.txt  # Python dependencies
+│   └── Dockerfile        # Backend Docker config
 ├── frontend/
 │   ├── src/
-│   │   ├── components/      # React components
-│   │   │   ├── ChatBot.tsx  # AI chatbot interface
-│   │   │   ├── UserManagement.tsx
-│   │   │   ├── GroupManagement.tsx
-│   │   │   ├── ExpenseManagement.tsx
-│   │   │   ├── BalanceView.tsx
-│   │   │   └── SettlementManagement.tsx
-│   │   ├── api/
-│   │   │   └── index.ts     # API client configuration
-│   │   ├── App.tsx          # Main application component
-│   │   └── index.tsx        # Application entry point
-│   ├── package.json         # Node.js dependencies
-│   └── Dockerfile           # Frontend container configuration
-├── docker-compose.yml       # Multi-container configuration
-├── README.md               # Project documentation
-└── .gitignore              # Git ignore patterns
-```
-
-## Database Schema
-
-### Users Table
-- `id`: Primary key
-- `name`: User's full name
-- `email`: User's email address
-
-### Groups Table
-- `id`: Primary key
-- `name`: Group name
-- `description`: Group description
-
-### Group Members Table
-- `group_id`: Foreign key to groups
-- `user_id`: Foreign key to users
-
-### Expenses Table
-- `id`: Primary key
-- `description`: Expense description
-- `amount`: Total expense amount
-- `paid_by`: Foreign key to users (who paid)
-- `group_id`: Foreign key to groups
-- `created_at`: Timestamp
-
-### Expense Splits Table
-- `id`: Primary key
-- `expense_id`: Foreign key to expenses
-- `user_id`: Foreign key to users
-- `amount`: Amount owed by this user
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Make your changes and commit: `git commit -m 'Add feature'`
-4. Push to the branch: `git push origin feature-name`
-5. Submit a pull request
-
-## Environment Variables
-
-### Backend (.env)
-```env
-DATABASE_URL=postgresql://postgres:password@localhost:5432/splitwise
-CUDA_AVAILABLE=false  # Set to true if you have CUDA support for faster AI processing
-```
-
-### Frontend (.env)
-```env
-REACT_APP_API_URL=http://localhost:8000
+│   │   ├── components/   # React components
+│   │   ├── api/          # API service
+│   │   └── App.tsx       # Main App component
+│   ├── package.json      # Node.js dependencies
+│   └── Dockerfile        # Frontend Docker config
+├── docker-compose.yml    # Full stack setup
+└── README.md            # This file
 ```
 
 ## Assumptions Made
 
-### Technical Assumptions
-1. **Database**: PostgreSQL is available and accessible
-2. **Environment**: Docker and Docker Compose are installed
-3. **Network**: Default ports (3000, 8000, 5432) are available
-4. **AI Model**: Internet connection required for initial model download
-5. **Browser**: Modern browser with JavaScript enabled
-6. **Memory**: Sufficient RAM for AI model inference (minimum 4GB recommended)
+1. **No Authentication**: Users are identified by ID only
+2. **No Payment Processing**: Only tracks who owes whom
+3. **Simple User Model**: Users only have name and email
+4. **In-Memory Session**: No persistent user sessions
+5. **Basic Validation**: Minimal input validation
+6. **Equal Split Default**: When no percentages provided
+7. **USD Currency**: All amounts assumed to be in USD
 
-### Business Logic Assumptions
-1. **Currency**: All amounts are in a single currency (no currency conversion)
-2. **Splitting**: Equal splitting is the default, percentage-based splitting available
-3. **Payments**: No actual payment processing (tracking only)
-4. **Users**: No authentication system (simplified for demo)
-5. **Groups**: Users can be in multiple groups
-6. **Settlement**: Manual settlement tracking (no automated payments)
-7. **AI Responses**: Chatbot provides informational responses only
+## Technologies Used
 
-### AI Chatbot Assumptions
-1. **Model Availability**: Hugging Face models are accessible
-2. **Fallback Strategy**: DialoGPT model used if DeepSeek fails
-3. **Context Limitation**: Chatbot only knows about current expense data
-4. **Response Format**: Text-only responses (no rich media)
-5. **Language**: English language queries only
-6. **Privacy**: No conversation history stored
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Port conflicts**: Change ports in docker-compose.yml if needed
-2. **Database connection**: Ensure PostgreSQL is running and accessible
-3. **AI Model Loading**: First startup may take longer due to model download
-4. **Memory issues**: Increase Docker memory allocation for AI features
-5. **CORS errors**: Check frontend API URL configuration
-
-### AI-Specific Issues
-
-1. **Model fails to load**: Check internet connection and available memory
-2. **Slow responses**: Consider enabling CUDA if available
-3. **Inaccurate responses**: Chatbot uses rule-based fallback for complex queries
-
-## License
-
-This project is open source and available under the [MIT License](LICENSE).
+- **Backend**: Python, FastAPI, SQLAlchemy, PostgreSQL
+- **Frontend**: React, TypeScript, TailwindCSS, Axios
+- **Database**: PostgreSQL
+- **Containerization**: Docker, Docker Compose
 
 ## Future Enhancements
 
-### Planned Features
-- User authentication and authorization
-- Multi-currency support
-- Receipt upload and OCR
-- Advanced splitting options (custom percentages, shares)
+- User authentication and sessions
+- Settlement/payment tracking
 - Email notifications
-- Mobile app (React Native)
-- Payment integration (Stripe, PayPal)
-- Improved AI model with fine-tuning on expense data
-- Voice input for chatbot
-- Expense categories and analytics
-- Export features (CSV, PDF)
+- Export functionality
+- Mobile app
 - Multiple currencies
 - Receipt upload
 - Advanced splitting options

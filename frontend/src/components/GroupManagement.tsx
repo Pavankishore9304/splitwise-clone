@@ -4,17 +4,17 @@ import { User, Group, GroupDetails, groupAPI } from '../api';
 interface GroupManagementProps {
   groups: Group[];
   users: User[];
-  selectedGroup: Group | null;
+  selectedGroup: Group | null; // Add this back
   onGroupCreated: () => void;
-  onGroupSelected: (group: Group | null) => void;
+  setSelectedGroup: (group: Group | null) => void;
 }
 
 const GroupManagement: React.FC<GroupManagementProps> = ({
   groups,
   users,
-  selectedGroup,
+  selectedGroup, // Add this back
   onGroupCreated,
-  onGroupSelected,
+  setSelectedGroup,
 }) => {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ name: '', description: '', user_ids: [] as number[] });
@@ -52,9 +52,10 @@ const GroupManagement: React.FC<GroupManagementProps> = ({
     try {
       const response = await groupAPI.getById(group.id);
       setGroupDetails(response.data);
-      onGroupSelected(group);
+      setSelectedGroup(group);
     } catch (error) {
-      console.error('Error loading group details:', error);    }
+      console.error('Error loading group details:', error);
+    }
   };
 
   const handleDeleteGroup = async (groupId: number, groupName: string) => {
@@ -67,7 +68,7 @@ const GroupManagement: React.FC<GroupManagementProps> = ({
       onGroupCreated(); // Refresh the group list
       // If the deleted group was selected, clear selection
       if (selectedGroup?.id === groupId) {
-        onGroupSelected(null);
+        setSelectedGroup(null);
         setGroupDetails(null);
       }
     } catch (error) {
@@ -176,33 +177,38 @@ const GroupManagement: React.FC<GroupManagementProps> = ({
                 No groups found. Create your first group to get started.
               </div>
             ) : (
-              groups.map((group) => (
-                <div
-                  key={group.id}
-                  className={`px-6 py-4 cursor-pointer hover:bg-gray-50 ${
-                    selectedGroup?.id === group.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''
-                  }`}
-                  onClick={() => loadGroupDetails(group)}
-                >                  <h4 className="text-sm font-medium text-gray-900">{group.name}</h4>
-                  {group.description && (
-                    <p className="text-sm text-gray-500 mt-1">{group.description}</p>
-                  )}
-                  <div className="flex justify-between items-center mt-2">
-                    <p className="text-xs text-gray-400">
-                      {group.members.length} members
-                    </p>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteGroup(group.id, group.name);
-                      }}
-                      className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 focus:outline-none focus:ring-1 focus:ring-red-500"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))
+              <ul className="space-y-2">
+                {groups.map((group) => (
+                  <li key={group.id}>
+                    <div
+                      onClick={() => loadGroupDetails(group)}
+                      className={`p-4 rounded-lg cursor-pointer transition-all duration-200 border-l-4 ${selectedGroup?.id === group.id ? 'bg-blue-50 border-blue-500 shadow-sm' : 'bg-white hover:bg-gray-50 border-transparent'}`}>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="font-semibold text-gray-800">{group.name}</p>
+                          {group.description && (
+                            <p className="text-sm text-gray-500 mt-1">{group.description}</p>
+                          )}
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteGroup(group.id, group.name);
+                          }}
+                          className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 focus:outline-none focus:ring-1 focus:ring-red-500"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                      <div className="flex justify-between items-center mt-2">
+                        <p className="text-xs text-gray-400">
+                          {group.members.length} members
+                        </p>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
         </div>
