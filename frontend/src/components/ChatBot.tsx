@@ -71,10 +71,10 @@ const ChatBot: React.FC = () => {
   };
 
   const exampleQueries = [
-    "Show me the latest 3 expenses",
-    "Who paid the most?",
-    "How much does Alice owe?",
-    "What's the total spent?"
+    "How many users are there?",
+    "Who is in the 'Trip to Goa' group?",
+    "How much does Pavan owe?",
+    "What are the total expenses for the 'Office Lunch' group?"
   ];
 
   const handleExampleClick = (query: string) => {

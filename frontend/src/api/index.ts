@@ -101,83 +101,42 @@ export interface Settlement {
   payee: User;
 }
 
-// User API
-export const userAPI = {
-  create: (userData: { name: string; email: string }) =>
-    api.post<User>('/users/', userData),
-  
-  getAll: () =>
-    api.get<User[]>('/users/'),
-  
-  getById: (userId: number) =>
-    api.get<User>(`/users/${userId}`),
-  
-  getBalances: (userId: number) =>
-    api.get<UserBalance>(`/users/${userId}/balances`),
-  
-  delete: (userId: number) =>
-    api.delete(`/users/${userId}`),
-};
-
-// Group API
-export const groupAPI = {
-  create: (groupData: { name: string; description?: string; user_ids: number[] }) =>
-    api.post<Group>('/groups/', groupData),
-  
-  getAll: () =>
-    api.get<Group[]>('/groups/'),
-  
-  getById: (groupId: number) =>
-    api.get<GroupDetails>(`/groups/${groupId}`),
-  
-  getBalances: (groupId: number) =>
-    api.get<GroupBalance>(`/groups/${groupId}/balances`),
-  
-  getExpenses: (groupId: number) =>
-    api.get<Expense[]>(`/groups/${groupId}/expenses/`),
-  
-  addExpense: (groupId: number, expenseData: ExpenseCreate) =>
-    api.post<Expense>(`/groups/${groupId}/expenses/`, expenseData),
-  
-  delete: (groupId: number) =>
-    api.delete(`/groups/${groupId}`),
-  
-  addSettlement: (groupId: number, settlementData: SettlementCreate) =>
-    api.post<Settlement>(`/groups/${groupId}/settlements/`, settlementData),
-  
-  getSettlements: (groupId: number) =>
-    api.get<Settlement[]>(`/groups/${groupId}/settlements/`),
-};
-
-// Settlement API
-export const settlementAPI = {
-  delete: (settlementId: number) =>
-    api.delete(`/settlements/${settlementId}`),
-};
-
-// Expense API
-export const expenseAPI = {
-  update: (expenseId: number, expenseData: ExpenseCreate) =>
-    api.put<Expense>(`/expenses/${expenseId}`, expenseData),
-  
-  delete: (expenseId: number) =>
-    api.delete(`/expenses/${expenseId}`),
-};
-
-// Chat interfaces
-export interface ChatQuery {
-  query: string;
-}
-
-export interface ChatResponse {
+export interface ChatbotResponse {
   response: string;
-  query: string;
 }
 
-// Chat API
+// API exports
+export const userAPI = {
+  create: (userData: { name: string; email: string }) => api.post<User>('/users/', userData),
+  getAll: () => api.get<User[]>('/users/'),
+  getById: (userId: number) => api.get<User>(`/users/${userId}`),
+  getBalances: (userId: number) => api.get<UserBalance>(`/users/${userId}/balances`),
+  delete: (userId: number) => api.delete(`/users/${userId}`)
+};
+
+export const groupAPI = {
+  create: (groupData: { name: string; description?: string; user_ids: number[] }) => api.post<Group>('/groups/', groupData),
+  getAll: () => api.get<Group[]>('/groups/'),
+  getById: (id: number) => api.get<GroupDetails>(`/groups/${id}`),
+  getBalances: (groupId: number) => api.get<GroupBalance>(`/groups/${groupId}/balances`),
+  delete: (groupId: number) => api.delete(`/groups/${groupId}`),
+  getExpenses: (groupId: number) => api.get<Expense[]>(`/groups/${groupId}/expenses/`),
+  addExpense: (groupId: number, expenseData: ExpenseCreate) => api.post<Expense>(`/groups/${groupId}/expenses/`, expenseData),
+  getSettlements: (groupId: number) => api.get<Settlement[]>(`/groups/${groupId}/settlements/`),
+  addSettlement: (groupId: number, settlementData: SettlementCreate) => api.post<Settlement>(`/groups/${groupId}/settlements/`, settlementData)
+};
+
+export const expenseAPI = {
+  update: (expenseId: number, expenseData: ExpenseCreate) => api.put<Expense>(`/expenses/${expenseId}`, expenseData),
+  delete: (expenseId: number) => api.delete(`/expenses/${expenseId}`)
+};
+
+export const settlementAPI = {
+  delete: (settlementId: number) => api.delete(`/settlements/${settlementId}`)
+};
+
 export const chatAPI = {
-  query: (query: string) =>
-    api.post<ChatResponse>('/chat/query', { query }),
+  query: (query: string) => api.post<ChatbotResponse>('/chatbot/', { query })
 };
 
 export default api;

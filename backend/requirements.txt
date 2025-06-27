@@ -10,3 +10,4 @@ torch==2.1.0
 accelerate==0.24.0
 sentencepiece==0.1.99
 httpx==0.25.2
+huggingface-hub==0.20.3

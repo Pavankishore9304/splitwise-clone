@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from typing import List, Optional
+from pydantic import BaseModel, validator
+from typing import List, Optional, Union
 from datetime import datetime
 from models import SplitType
 
@@ -46,8 +46,19 @@ class ExpenseCreate(BaseModel):
     description: str
     amount: float
     paid_by: int
-    split_type: SplitType
+    split_type: Union[SplitType, str]
     splits: Optional[List[ExpenseSplitCreate]] = None  # Only for percentage splits
+
+    @validator('split_type', pre=True)
+    def validate_split_type(cls, v):
+        if isinstance(v, str):
+            if v == 'equal':
+                return SplitType.EQUAL
+            elif v == 'percentage':
+                return SplitType.PERCENTAGE
+            else:
+                raise ValueError(f"Invalid split_type: {v}. Must be 'equal' or 'percentage'")
+        return v
 
 class ExpenseSplit(BaseModel):
     id: int
@@ -98,16 +109,18 @@ class SettlementCreate(BaseModel):
     amount: float
     description: Optional[str] = None
 
-class Settlement(BaseModel):
+class Settlement(SettlementCreate):
     id: int
     group_id: int
-    payer_id: int
-    payee_id: int
-    amount: float
-    description: Optional[str]
     settled_at: datetime
     payer: User
     payee: User
-    
+
     class Config:
         from_attributes = True
+
+class ChatbotRequest(BaseModel):
+    query: str
+
+class ChatbotResponse(BaseModel):
+    response: str

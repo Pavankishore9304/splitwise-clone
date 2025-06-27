@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir -r requirements-lite.txt
 
 # Copy only necessary application files (exclude cache and unnecessary files)
 COPY *.py .
-COPY .env .env.example ./
+COPY .env ./
 
 # Clean up any unnecessary files and optimize the image
 RUN find . -type d -name __pycache__ -exec rm -rf {} + && \

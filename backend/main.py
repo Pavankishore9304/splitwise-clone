@@ -6,6 +6,7 @@ from database import get_db, create_tables
 import models
 import schemas
 from collections import defaultdict
+from ai_service import get_ai_response
 
 app = FastAPI(title="Splitwise Clone API", version="1.0.0")
 
@@ -177,7 +178,10 @@ def delete_group(group_id: int, db: Session = Depends(get_db)):
             detail=f"Cannot delete group '{group.name}'. Group has {expenses_count} expenses. Please delete all expenses first or settle all balances."
         )
     
-    # Delete group memberships first
+    # Delete settlements first (before group memberships)
+    db.query(models.Settlement).filter(models.Settlement.group_id == group_id).delete()
+    
+    # Delete group memberships
     db.query(models.GroupMember).filter(models.GroupMember.group_id == group_id).delete()
     
     # Delete the group
@@ -549,29 +553,42 @@ def delete_settlement(settlement_id: int, db: Session = Depends(get_db)):
     
     return {"message": "Settlement deleted successfully"}
 
-# Chatbot schemas
-# class ChatQuery(BaseModel):
-#     query: str
-
-# class ChatResponse(BaseModel):
-#     response: str
-#     query: str
-
 # Chatbot endpoint
-# @app.post("/chat/query", response_model=ChatResponse)
-# async def chat_query(chat_query: ChatQuery, db: Session = Depends(get_db)):
-#     """
-#     Process natural language queries about expenses, balances, and groups
-#     Example queries:
-#     - "How much does Alice owe in group Goa Trip?"
-#     - "Show me my latest 3 expenses"
-#     - "Who paid the most in Weekend Trip?"
-#     """
-#     try:
-#         response = await chatbot.process_query(chat_query.query, db)
-#         return ChatResponse(response=response, query=chat_query.query)
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=f"Error processing query: {str(e)}")
+@app.post("/chatbot/", response_model=schemas.ChatbotResponse)
+async def chatbot_endpoint(request: schemas.ChatbotRequest, db: Session = Depends(get_db)):
+    """
+    Processes a user's natural language query about their Splitwise data.
+    """
+    # 1. Gather all relevant data from the database
+    users = db.query(models.User).all()
+    groups = db.query(models.Group).all()
+    expenses = db.query(models.Expense).all()
+
+    # 2. Format the data into a comprehensive context string
+    context = "Here is the current state of the Splitwise data:\n\n"
+    
+    context += "**Users:**\n"
+    for user in users:
+        context += f"- ID: {user.id}, Name: {user.name}, Email: {user.email}\n"
+    context += "\n"
+
+    context += "**Groups:**\n"
+    for group in groups:
+        member_names = [member.user.name for member in group.members]
+        context += f"- Group ID: {group.id}, Name: {group.name}, Members: {', '.join(member_names)}\n"
+    context += "\n"
+
+    context += "**Expenses & Balances:**\n"
+    for group in groups:
+        group_balance = get_group_balances(group.id, db)
+        context += f"\n*Group: {group.name}*\n"
+        for balance in group_balance.balances:
+            context += f"  - {balance.user_name}: Owes ${balance.owes:.2f}, Is Owed ${balance.owed:.2f}, Net Balance: ${balance.net_balance:.2f}\n"
+
+    # 3. Call the AI service with the context and question
+    ai_response = get_ai_response(context, request.query)
+
+    return schemas.ChatbotResponse(response=ai_response)
 
 if __name__ == "__main__":
     import uvicorn
